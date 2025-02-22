@@ -16,14 +16,11 @@ trait GitlabPublishModule extends PublishModule { outer =>
 
   def gitlabHeaders(
       systemProps: Map[String, String] = sys.props.toMap
-  ): Task[GitlabAuthHeaders] = Task.Anon {
-    val auth = tokenLookup.resolveGitlabToken(Task.env, systemProps, Task.workspace)
-    auth match {
+  ): T[GitlabAuthHeaders] = T {
+    tokenLookup.resolveGitlabToken(Task.env, systemProps, Task.workspace) match {
       case Result.Failure(msg) =>
-        Failure(
-          s"Token lookup for PUBLISH repository ($publishRepository) failed with $msg"
-        ): Result[GitlabAuthHeaders]
-      case Result.Success(value) => Success(value)
+        throw new Exception(s"Token lookup for PUBLISH repository ($publishRepository) failed with $msg")
+      case Result.Success(value) => value
     }
   }
 
