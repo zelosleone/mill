@@ -311,7 +311,7 @@ object PromptLoggerTests extends TestSuite {
       // Set up a failing task
       promptLogger.setPromptLine(Seq("1"), "/19459", "failing-task")
       prefixLogger.errorStream.println("Task failed with error")
-      
+
       now += 5000
       promptLogger.refreshPrompt()
       check(promptLogger, baos)(
@@ -340,7 +340,7 @@ object PromptLoggerTests extends TestSuite {
 
       promptLogger.removePromptLine(Seq("1"))
       promptLogger.removePromptLine(Seq("2"))
-      
+
       now += 3000
       promptLogger.refreshPrompt()
       check(promptLogger, baos)(

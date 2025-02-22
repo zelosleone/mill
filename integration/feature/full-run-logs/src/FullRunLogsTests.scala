@@ -93,7 +93,7 @@ object FullRunLogsTests extends UtestIntegrationTestSuite {
       // Try to compile and verify the error
       val res = eval(("--ticker", "true", "compile"))
       res.isSuccess ==> false
-      
+
       // Verify error message contains expected compilation error indicators
       val normErr = res.err.replace('\\', '/').replaceAll("(\r\n)|\r", "\n")
       assert(normErr.contains("[error]"))
