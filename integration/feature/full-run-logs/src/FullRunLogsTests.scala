@@ -86,7 +86,7 @@ object FullRunLogsTests extends UtestIntegrationTestSuite {
       val originalContent = os.read(javaFile)
       os.write.over(
         target = javaFile,
-        data = originalContent.replace("public class Foo{", "public class Foo{ @#$%"),
+        data = originalContent.replace("public class Foo{", "public class Foo{ invalid syntax here"),
         createFolders = true
       )
 
@@ -98,7 +98,7 @@ object FullRunLogsTests extends UtestIntegrationTestSuite {
       val normErr = res.err.replace('\\', '/').replaceAll("(\r\n)|\r", "\n")
       assert(normErr.contains("[error]"))
       assert(normErr.contains("Foo.java"))
-      assert(normErr.contains("error: illegal character"))
+      assert(normErr.contains("error: not a statement"))
 
       // Verify the failure count appears in the ticker output
       val failurePattern = "\\[\\d+/\\d+, 1 failed\\]".r
