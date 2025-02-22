@@ -5,15 +5,16 @@ import coursier.maven.MavenRepository
 import mill.api.Result
 import mill.api.Result.{Failure, Success}
 import mill.define.Task
+import mill.define.Task.T
 
 trait GitlabMavenRepository {
 
   def tokenLookup: GitlabTokenLookup = new GitlabTokenLookup {} // For token discovery
   def gitlabRepository: GitlabPackageRepository // For package discovery
 
-  def mavenRepository: Task[MavenRepository] = Task.Anon {
+  def mavenRepository: T[MavenRepository] = T {
 
-    val gitlabAuth = tokenLookup.resolveGitlabToken(Task.env, sys.props.toMap, Task.workspace)
+    val gitlabAuth = tokenLookup.resolveGitlabToken(T.env, sys.props.toMap, T.workspace)
       .map(auth => Authentication(auth.headers))
       .map(auth => MavenRepository(gitlabRepository.url(), Some(auth)))
 
