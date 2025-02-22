@@ -296,5 +296,70 @@ object PromptLoggerTests extends TestSuite {
         "[123/456] ============================= TITLE ============================= 11s"
       )
     }
+
+    test("failureReporting") - retry(3) {
+      var now = 0L
+      val (baos, promptLogger, prefixLogger) = setup(() => now, os.temp("80 40"))
+
+      // Initial state with total tasks and failed count
+      promptLogger.setPromptHeaderPrefix("19459/19459, 5 failed")
+      promptLogger.refreshPrompt()
+      check(promptLogger, baos)(
+        "[19459/19459, 5 failed] ======================== TITLE ========================"
+      )
+
+      // Set up a failing task
+      promptLogger.setPromptLine(Seq("1"), "/19459", "failing-task")
+      prefixLogger.errorStream.println("Task failed with error")
+      
+      now += 5000
+      promptLogger.refreshPrompt()
+      check(promptLogger, baos)(
+        "[1/19459] failing-task",
+        "[1] Task failed with error",
+        "[19459/19459, 5 failed] ======================= TITLE ====================== 5s",
+        "[1] failing-task 5s"
+      )
+
+      // Add another failing task to show multiple failures
+      val newPrefixLogger = new PrefixLogger(promptLogger, Seq("2"))
+      newPrefixLogger.setPromptLine(Seq("2"), "/19459", "another-failing-task")
+      newPrefixLogger.errorStream.println("Another failure occurred")
+
+      now += 2000
+      promptLogger.refreshPrompt()
+      check(promptLogger, baos)(
+        "[1/19459] failing-task",
+        "[1] Task failed with error",
+        "[2/19459] another-failing-task",
+        "[2] Another failure occurred",
+        "[19459/19459, 5 failed] ======================= TITLE ====================== 7s",
+        "[1] failing-task 7s",
+        "[2] another-failing-task 2s"
+      )
+
+      promptLogger.removePromptLine(Seq("1"))
+      promptLogger.removePromptLine(Seq("2"))
+      
+      now += 3000
+      promptLogger.refreshPrompt()
+      check(promptLogger, baos)(
+        "[1/19459] failing-task",
+        "[1] Task failed with error",
+        "[2/19459] another-failing-task",
+        "[2] Another failure occurred",
+        "[19459/19459, 5 failed] ====================== TITLE ====================== 10s"
+      )
+
+      promptLogger.close()
+      check(promptLogger, baos)(
+        "[1/19459] failing-task",
+        "[1] Task failed with error",
+        "[2/19459] another-failing-task",
+        "[2] Another failure occurred",
+        "[19459/19459, 5 failed] ====================== TITLE ====================== 10s",
+        ""
+      )
+    }
   }
 }

@@ -51,6 +51,7 @@ trait Logger extends AutoCloseable {
 
   private[mill] def setPromptDetail(key: Seq[String], s: String): Unit = ticker(s)
   private[mill] def reportKey(key: Seq[String]): Unit = ()
+  private[mill] def reportTaskFailure(key: Seq[String]): Unit = ()
   private[mill] def setPromptLine(
       key: Seq[String],
       verboseKeySuffix: String,

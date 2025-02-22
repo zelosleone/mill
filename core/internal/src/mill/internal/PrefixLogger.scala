@@ -104,6 +104,8 @@ private[mill] class PrefixLogger(
 
   private[mill] override def reportKey(callKey: Seq[String]): Unit =
     logger0.reportKey(callKey)
+  private[mill] override def reportTaskFailure(callKey: Seq[String]): Unit =
+    logger0.reportTaskFailure(callKey)
   private[mill] override def removePromptLine(callKey: Seq[String]): Unit =
     logger0.removePromptLine(callKey)
   private[mill] override def removePromptLine(): Unit = removePromptLine(logPrefixKey)

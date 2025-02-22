@@ -71,6 +71,11 @@ private[mill] class MultiLogger(
     logger2.reportKey(key)
   }
 
+  private[mill] override def reportTaskFailure(key: Seq[String]): Unit = {
+    logger1.reportTaskFailure(key)
+    logger2.reportTaskFailure(key)
+  }
+
   override def rawOutputStream: PrintStream = systemStreams.out
 
   private[mill] override def removePromptLine(key: Seq[String]): Unit = {

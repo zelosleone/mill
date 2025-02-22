@@ -48,6 +48,8 @@ private[mill] class FileLogger(
   def info(s: String): Unit = outputStream.println(s)
   def error(s: String): Unit = outputStream.println(s)
   def ticker(s: String): Unit = outputStream.println(s)
+  private[mill] override def reportTaskFailure(key: Seq[String]): Unit =
+    outputStream.println(s"Task failed: ${key.mkString("-")}")
   def debug(s: String): Unit = if (debugEnabled) outputStream.println(s)
   override def close(): Unit = {
     if (outputStreamUsed)

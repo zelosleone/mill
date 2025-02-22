@@ -74,5 +74,47 @@ object FullRunLogsTests extends UtestIntegrationTestSuite {
       assert(millProfile.exists(_.obj("label").str == "show"))
       assert(millChromeProfile.exists(_.obj("name").str == "show"))
     }
+    test("compilationError") - integrationTest { tester =>
+      import tester._
+
+      // First ensure clean compilation works
+      val initialRun = eval("compile")
+      initialRun.isSuccess ==> true
+
+      // Break the Java file by introducing a syntax error
+      val javaFile = os.Path(workspacePath.toString()) / "src" / "foo" / "Foo.java"
+      val originalContent = os.read(javaFile)
+      os.write.over(
+        target = javaFile,
+        data = originalContent.replace("public class Foo{", "public class Foo{ @#$%"),
+        createFolders = true
+      )
+
+      // Try to compile and verify the error
+      val res = eval(("--ticker", "true", "compile"))
+      res.isSuccess ==> false
+      
+      // Verify error message contains expected compilation error indicators
+      val normErr = res.err.replace('\\', '/').replaceAll("(\r\n)|\r", "\n")
+      assert(normErr.contains("[error]"))
+      assert(normErr.contains("Foo.java"))
+      assert(normErr.contains("error: illegal character"))
+
+      // Verify the failure count appears in the ticker output
+      val failurePattern = "\\[\\d+/\\d+, 1 failed\\]".r
+      failurePattern.findFirstIn(normErr).isDefined ==> true
+
+      // Verify early indication of failure - error should appear before completion messages
+      val errorIndex = normErr.indexOf("[error]")
+      val doneCompilingIndex = normErr.indexOf("done compiling")
+      (errorIndex >= 0 && (doneCompilingIndex < 0 || errorIndex < doneCompilingIndex)) ==> true
+
+      // Clean up - restore the original file
+      os.write.over(
+        target = javaFile,
+        data = originalContent,
+        createFolders = true
+      )
+    }
   }
 }

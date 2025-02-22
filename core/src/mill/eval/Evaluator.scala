@@ -12,6 +12,7 @@ import mill.api.{
 }
 import mill.constants.OutFiles
 import mill.define.*
+import mill.define.NamedTask
 import mill.exec.{Execution, Plan}
 import mill.define.internal.Watchable
 import OutFiles.*
@@ -98,6 +99,10 @@ final class Evaluator private[mill] (
    * @param selectiveExecution
    * @return
    */
+  private def reportFailure(logger: ColorLogger, key: Seq[String]): Unit = {
+    logger.reportTaskFailure(key)
+  }
+
   def execute[T](
       targets: Seq[Task[T]],
       reporter: Int => Option[CompileProblemReporter] = _ => Option.empty[CompileProblemReporter],
@@ -163,6 +168,10 @@ final class Evaluator private[mill] (
         }
 
         val errorStr = Evaluator.formatFailing(evaluated)
+        // Report failures for each failing task
+        evaluated.failing.foreach { case (task, _) =>
+          reportFailure(logger, Seq(task.asInstanceOf[NamedTask[?]].label))
+        }
         evaluated.failing.size match {
           case 0 =>
             Evaluator.Result(

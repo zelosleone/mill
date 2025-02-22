@@ -112,6 +112,11 @@ private[mill] class PromptLogger(
     promptLineState.setDetail(key, s)
   }
 
+  override def reportTaskFailure(key: Seq[String]): Unit = synchronized {
+    promptLineState.incrementFailures()
+    refreshPrompt()
+  }
+
   override def reportKey(key: Seq[String]): Unit = {
     val res = synchronized {
       if (reportedIdentifiers(key)) None
@@ -330,6 +335,9 @@ private[mill] object PromptLogger {
       currentTimeMillis: () => Long,
       infoColor: fansi.Attrs
   ) {
+    private var failedTaskCount = 0
+    def incrementFailures(): Unit = synchronized { failedTaskCount += 1 }
+    def getFailureCount: Int = failedTaskCount
     private val statuses = collection.mutable.SortedMap
       .empty[Seq[String], Status](PromptLoggerUtil.seqStringOrdering)
 
@@ -366,7 +374,8 @@ private[mill] object PromptLogger {
         titleText,
         statuses.toSeq.map { case (k, v) => (k.mkString("-"), v) },
         interactive = interactive,
-        infoColor = infoColor
+        infoColor = infoColor,
+        failureCount = getFailureCount
       )
 
       val oldPromptBytes = currentPromptBytes
