@@ -98,7 +98,7 @@ object FullRunLogsTests extends UtestIntegrationTestSuite {
       val normErr = res.err.replace('\\', '/').replaceAll("(\r\n)|\r", "\n")
       assert(normErr.contains("[error]"))
       assert(normErr.contains("Foo.java"))
-      assert(normErr.contains("illegal character"))
+      assert(normErr.contains("error: illegal character"))
 
       // Verify the failure count appears in the ticker output
       val failurePattern = "\\[\\d+/\\d+, 1 failed\\]".r
