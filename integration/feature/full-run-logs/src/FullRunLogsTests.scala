@@ -41,7 +41,7 @@ object FullRunLogsTests extends UtestIntegrationTestSuite {
              |[<digits>] [info] compiling 1 Java source to ${tester.workspacePath}/out/compile.dest/classes ...
              |[<digits>] [info] done compiling
              |[<digits>/<digits>] run
-             |[<digits>/<digits>] <dashes> run --text hello <dashes> <digits>s"""
+             |[<digits>/<digits>] <dashes> run --text hello <dashes> <digits>s [<digits>/<digits>]"""
             .stripMargin
             .replaceAll("(\r\n)|\r", "\n")
             .replace('\\', '/')
