@@ -40,8 +40,7 @@ private[mill] class PromptLogger(
         currentTimeMillis(),
         () => termDimensions,
         currentTimeMillis,
-        infoColor
-,
+        infoColor,
         errorColor
       )
 
@@ -330,8 +329,7 @@ private[mill] object PromptLogger {
       startTimeMillis: Long,
       consoleDims: () => (Option[Int], Option[Int]),
       currentTimeMillis: () => Long,
-      infoColor: fansi.Attrs
-,
+      infoColor: fansi.Attrs,
       errorColor: fansi.Attrs
   ) {
     private val failedTasks = new java.util.concurrent.atomic.AtomicInteger(0)
@@ -372,8 +370,7 @@ private[mill] object PromptLogger {
         titleText,
         statuses.toSeq.map { case (k, v) => (k.mkString("-"), v) },
         interactive = interactive,
-        infoColor = infoColor
-,
+        infoColor = infoColor,
         errorColor = errorColor,
         failureStats = (failedTasks.get, totalTasks.get)
       )
@@ -415,7 +412,7 @@ private[mill] object PromptLogger {
             else existing.copy(next = sOptEntry, beginTransitionTime = now, prev = existing.next)
           )
       }
-      
+
       // Check if this is a failure status update
       sOpt.foreach { s =>
         if (s.contains("failed") || s.contains("error")) {

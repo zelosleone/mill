@@ -91,8 +91,7 @@ private object PromptLoggerUtil {
       titleText: String,
       statuses: Iterable[(String, Status)],
       interactive: Boolean,
-      infoColor: fansi.Attrs
-,
+      infoColor: fansi.Attrs,
       errorColor: fansi.Attrs,
       failureStats: (Int, Int)
   ): List[String] = {

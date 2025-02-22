@@ -286,7 +286,7 @@ object PromptLoggerTests extends TestSuite {
       now += 10000
       promptLogger.refreshPrompt()
       check(promptLogger, baos)(
-        "[123/456] ========================== TITLE ========================== 11s [2/2]",
+        "[123/456] ========================== TITLE ========================== 11s [2/2]"
       )
     }
   }
