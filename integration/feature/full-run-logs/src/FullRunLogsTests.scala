@@ -86,7 +86,8 @@ object FullRunLogsTests extends UtestIntegrationTestSuite {
       val originalContent = os.read(javaFile)
       os.write.over(
         target = javaFile,
-        data = originalContent.replace("public class Foo{", "public class Foo{ invalid syntax here"),
+        data =
+          originalContent.replace("public class Foo{", "public class Foo{ invalid syntax here"),
         createFolders = true
       )
 
