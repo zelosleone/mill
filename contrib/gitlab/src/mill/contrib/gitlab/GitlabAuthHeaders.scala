@@ -1,5 +1,7 @@
 package mill.contrib.gitlab
 
+import upickle.default._
+
 /**
  * Actual headers to inject to http requests to gitlab.
  *
@@ -8,6 +10,8 @@ package mill.contrib.gitlab
 case class GitlabAuthHeaders(headers: Seq[(String, String)])
 
 object GitlabAuthHeaders {
+  implicit val rw: ReadWriter[GitlabAuthHeaders] = macroRW
+
   def apply(header: String, value: String): GitlabAuthHeaders =
     GitlabAuthHeaders(Seq(header -> value))
 

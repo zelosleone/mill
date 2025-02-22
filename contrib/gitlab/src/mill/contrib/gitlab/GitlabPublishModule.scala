@@ -5,6 +5,7 @@ import mill.api.Result.{Failure, Success}
 import mill.api.Result
 import mill.define.{Command, ExternalModule, Task}
 import scalalib._
+import upickle.default._
 
 trait GitlabPublishModule extends PublishModule { outer =>
 
@@ -14,9 +15,11 @@ trait GitlabPublishModule extends PublishModule { outer =>
 
   def tokenLookup: GitlabTokenLookup = new GitlabTokenLookup {}
 
+  implicit val headersRW: ReadWriter[GitlabAuthHeaders] = macroRW[GitlabAuthHeaders]
+
   def gitlabHeaders(
       systemProps: Map[String, String] = sys.props.toMap
-  ): T[GitlabAuthHeaders] = T {
+  ): Task[GitlabAuthHeaders] = Task.task {
     tokenLookup.resolveGitlabToken(Task.env, systemProps, Task.workspace) match {
       case Result.Failure(msg) =>
         throw new Exception(s"Token lookup for PUBLISH repository ($publishRepository) failed with $msg")
