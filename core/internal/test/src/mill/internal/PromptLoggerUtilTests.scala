@@ -146,7 +146,9 @@ object PromptLoggerUtilTests extends TestSuite {
           titleText = titleText,
           statuses = SortedMap(statuses.map { case (k, v) => (k.toString, v) }*),
           interactive = interactive,
-          infoColor = fansi.Attrs.Empty
+          infoColor = fansi.Attrs.Empty,
+          errorColor = fansi.Attrs.Empty,
+          failureStats = (0, 0)
         )
 
       }

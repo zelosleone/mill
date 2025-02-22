@@ -92,6 +92,9 @@ private object PromptLoggerUtil {
       statuses: Iterable[(String, Status)],
       interactive: Boolean,
       infoColor: fansi.Attrs
+,
+      errorColor: fansi.Attrs,
+      failureStats: (Int, Int)
   ): List[String] = {
     // -1 to leave a bit of buffer
     val maxWidth = consoleWidth - 1
@@ -99,7 +102,13 @@ private object PromptLoggerUtil {
     val maxHeight = math.max(1, consoleHeight / 3 - 1)
     val headerSuffix = renderSecondsSuffix(now - startTimeMillis)
 
-    val header = renderHeader(headerPrefix, titleText, headerSuffix, maxWidth)
+    // Format failure stats with color
+    val (failed, total) = failureStats
+    val statsStr = if (total > 0) {
+      val failedStr = if (failed > 0) errorColor(s", $failed failed").render else ""
+      s" [$total/$total$failedStr]"
+    } else ""
+    val header = renderHeader(headerPrefix, titleText, headerSuffix + statsStr, maxWidth)
 
     val body0 = statuses
       .flatMap {

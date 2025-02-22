@@ -41,6 +41,8 @@ private[mill] class PromptLogger(
         () => termDimensions,
         currentTimeMillis,
         infoColor
+,
+        errorColor
       )
 
   private object streamManager extends StreamManager(
@@ -329,7 +331,11 @@ private[mill] object PromptLogger {
       consoleDims: () => (Option[Int], Option[Int]),
       currentTimeMillis: () => Long,
       infoColor: fansi.Attrs
+,
+      errorColor: fansi.Attrs
   ) {
+    private val failedTasks = new java.util.concurrent.atomic.AtomicInteger(0)
+    private val totalTasks = new java.util.concurrent.atomic.AtomicInteger(0)
     private val statuses = collection.mutable.SortedMap
       .empty[Seq[String], Status](PromptLoggerUtil.seqStringOrdering)
 
@@ -367,6 +373,9 @@ private[mill] object PromptLogger {
         statuses.toSeq.map { case (k, v) => (k.mkString("-"), v) },
         interactive = interactive,
         infoColor = infoColor
+,
+        errorColor = errorColor,
+        failureStats = (failedTasks.get, totalTasks.get)
       )
 
       val oldPromptBytes = currentPromptBytes
@@ -384,6 +393,7 @@ private[mill] object PromptLogger {
     def setCurrent(key: Seq[String], sOpt: Option[String]): Unit = {
 
       val now = currentTimeMillis()
+      totalTasks.incrementAndGet()
       def stillTransitioning(status: Status) = {
         status.beginTransitionTime + statusRemovalHideDelayMillis > now
       }
@@ -404,6 +414,13 @@ private[mill] object PromptLogger {
             if (stillTransitioning(existing)) existing.copy(next = sOptEntry)
             else existing.copy(next = sOptEntry, beginTransitionTime = now, prev = existing.next)
           )
+      }
+      
+      // Check if this is a failure status update
+      sOpt.foreach { s =>
+        if (s.contains("failed") || s.contains("error")) {
+          failedTasks.incrementAndGet()
+        }
       }
     }
   }
