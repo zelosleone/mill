@@ -82,8 +82,11 @@ object FullRunLogsTests extends UtestIntegrationTestSuite {
       initial.isSuccess ==> true
 
       // Break the build by adding invalid syntax to build.mill
-      modifyFile(workspacePath / "build.mill", content => 
-        content + "\ninvalid syntax here")
+      modifyFile(
+        workspacePath / "build.mill",
+        content =>
+          content + "\ninvalid syntax here"
+      )
 
       // Run and verify the failure is counted
       val failed = eval(("--ticker", "true", "run", "--text", "hello"))
@@ -115,8 +118,11 @@ object FullRunLogsTests extends UtestIntegrationTestSuite {
       initial.isSuccess ==> true
 
       // Break the build by adding invalid syntax to build.mill
-      modifyFile(workspacePath / "build.mill", content => 
-        content + "\ninvalid syntax here")
+      modifyFile(
+        workspacePath / "build.mill",
+        content =>
+          content + "\ninvalid syntax here"
+      )
 
       // Run and verify the failure is counted
       val failed = eval(("--ticker", "false", "run", "--text", "hello"))
