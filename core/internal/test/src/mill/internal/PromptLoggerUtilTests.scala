@@ -148,7 +148,7 @@ object PromptLoggerUtilTests extends TestSuite {
           interactive = interactive,
           infoColor = fansi.Attrs.Empty,
           errorColor = fansi.Attrs.Empty,
-          failureStats = (0, 0)
+          progressStats = (0, 0, 0)
         )
 
       }
