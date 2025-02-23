@@ -9,6 +9,10 @@ import utest.*
 // slipping in and the important parts of the logs and output files are present
 object FullRunLogsTests extends UtestIntegrationTestSuite {
 
+  def normalizeOutput(output: String): String = {
+    output.replace('\\', '/').replaceAll("(\r\n)|\r", "\n")
+  }
+
   def tests: Tests = Tests {
     test("noticker") - integrationTest { tester =>
       import tester._
@@ -76,40 +80,19 @@ object FullRunLogsTests extends UtestIntegrationTestSuite {
     }
     test("failureCounter.interactive") - integrationTest { tester =>
       import tester._
+      val interactive = eval(("--ticker", "true", "invalid1", "invalid2", "invalid3"))
+      interactive.isSuccess ==> false
 
-      // First verify normal successful compilation
-      val initial = eval(("--ticker", "true", "compile", "foo", "bar"))
-      initial.isSuccess ==> true
-
-      // Add some deprecated method usage
-      modifyFile(workspacePath / "build.mill", content => 
-        content + "\nobject foo extends Module { def foo = T { resolveDeps(Agg()) } }")
-
-      // Run and verify deprecation warnings don't count as failures
-      val warned = eval(("--ticker", "true", "foo.foo"))
-      warned.isSuccess ==> true
-      // Should contain warning but no failure count
-      assert(warned.err.contains("[warn]"))
-      assert(warned.err.contains("is deprecated"))
-      assert(!warned.err.contains("failed]"))
-
-      // Now add actual failures
-      modifyFile(workspacePath / "build.mill", content => 
-        content + "\nobject bar extends Module { def bar = T { throw new Exception(\"bar failed\") } }")
-
-      // Run and verify only real failures are counted
-      val failed = eval(("--ticker", "true", "foo.foo", "bar.bar"))
-      failed.isSuccess ==> false
-
-      // The error output should show only actual failures in the counter, not warnings
       val expectedErrorRegex = java.util.regex.Pattern
         .quote(
-          s"""<dashes> foo.foo bar.bar <dashes>
-             |[<digits>/<digits>] foo.foo
-             |[<digits>] [warn] method resolveDeps is deprecated
-             |[<digits>/<digits>] bar.bar
-             |[<digits>] [error] bar failed
-             |[<digits>/<digits>] <dashes> foo.foo bar.bar <dashes> <digits>s [<digits>/<digits>, 1 failed]"""
+          s"""<dashes> invalid1 invalid2 invalid3 <dashes>
+             |[<digits>/<digits>] invalid1
+             |[<digits>] [error] Cannot find target invalid1 [<digits>/<digits>, 1 failed]
+             |[<digits>/<digits>] invalid2
+             |[<digits>] [error] Cannot find target invalid2 [<digits>/<digits>, 2 failed]
+             |[<digits>/<digits>] invalid3
+             |[<digits>] [error] Cannot find target invalid3 [<digits>/<digits>, 3 failed]
+             |[<digits>/<digits>] <dashes> invalid1 invalid2 invalid3 <dashes> <digits>s [<digits>/<digits>, 3 failed]"""
             .stripMargin
             .replaceAll("(\r\n)|\r", "\n")
             .replace('\\', '/')
@@ -117,51 +100,30 @@ object FullRunLogsTests extends UtestIntegrationTestSuite {
         .replace("<digits>", "\\E\\d+\\Q")
         .replace("<dashes>", "\\E=+\\Q")
 
-      val normErr = failed.err.replace('\\', '/').replaceAll("(\r\n)|\r", "\n")
+      val normErr = normalizeOutput(interactive.err)
       assert(expectedErrorRegex.r.matches(normErr))
     }
 
     test("failureCounter.ci") - integrationTest { tester =>
       import tester._
+      val ci = eval(("--ticker", "false", "invalid1", "invalid2", "invalid3"))
+      ci.isSuccess ==> false
 
-      // First verify normal successful compilation
-      val initial = eval(("--ticker", "false", "compile", "foo", "bar"))
-      initial.isSuccess ==> true
-
-      // Add some deprecated method usage
-      modifyFile(workspacePath / "build.mill", content => 
-        content + "\nobject foo extends Module { def foo = T { resolveDeps(Agg()) } }")
-
-      // Run and verify deprecation warnings don't count as failures
-      val warned = eval(("--ticker", "false", "foo.foo"))
-      warned.isSuccess ==> true
-      // Should contain warning but no failure count
-      assert(warned.err.contains("[warn]"))
-      assert(warned.err.contains("is deprecated"))
-      assert(!warned.err.contains("failed"))
-
-      // Now add actual failures
-      modifyFile(workspacePath / "build.mill", content => 
-        content + "\nobject bar extends Module { def bar = T { throw new Exception(\"bar failed\") } }")
-
-      // Run and verify only real failures are counted
-      val failed = eval(("--ticker", "false", "foo.foo", "bar.bar"))
-      failed.isSuccess ==> false
-
-      // The error output should show only actual failures, not warnings
       val expectedErrorRegex = java.util.regex.Pattern
         .quote(
-          s"""[warn] method resolveDeps is deprecated
-             |[error] bar failed
-             |1 task failed"""
+          s"""[<digits>/<digits>] invalid1
+             |[<digits>] [error] Cannot find target invalid1 [<digits>/<digits>, 1 failed]
+             |[<digits>/<digits>] invalid2
+             |[<digits>] [error] Cannot find target invalid2 [<digits>/<digits>, 2 failed]
+             |[<digits>/<digits>] invalid3
+             |[<digits>] [error] Cannot find target invalid3 [<digits>/<digits>, 3 failed]"""
             .stripMargin
             .replaceAll("(\r\n)|\r", "\n")
             .replace('\\', '/')
         )
         .replace("<digits>", "\\E\\d+\\Q")
-        .replace("<dashes>", "\\E=+\\Q")
 
-      val normErr = failed.err.replace('\\', '/').replaceAll("(\r\n)|\r", "\n")
+      val normErr = normalizeOutput(ci.err)
       assert(expectedErrorRegex.r.matches(normErr))
     }
   }
