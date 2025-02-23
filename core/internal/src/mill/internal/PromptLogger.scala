@@ -334,6 +334,7 @@ private[mill] object PromptLogger {
   ) {
     private val failedTasks = new java.util.concurrent.atomic.AtomicInteger(0)
     private val totalTasks = new java.util.concurrent.atomic.AtomicInteger(0)
+    private val completedTasks = new java.util.concurrent.atomic.AtomicInteger(0)
     private val statuses = collection.mutable.SortedMap
       .empty[Seq[String], Status](PromptLoggerUtil.seqStringOrdering)
 
@@ -372,7 +373,7 @@ private[mill] object PromptLogger {
         interactive = interactive,
         infoColor = infoColor,
         errorColor = errorColor,
-        failureStats = (failedTasks.get, totalTasks.get)
+        progressStats = (completedTasks.get, totalTasks.get, failedTasks.get)
       )
 
       val oldPromptBytes = currentPromptBytes
@@ -390,7 +391,6 @@ private[mill] object PromptLogger {
     def setCurrent(key: Seq[String], sOpt: Option[String]): Unit = {
 
       val now = currentTimeMillis()
-      totalTasks.incrementAndGet()
       def stillTransitioning(status: Status) = {
         status.beginTransitionTime + statusRemovalHideDelayMillis > now
       }
@@ -413,12 +413,21 @@ private[mill] object PromptLogger {
           )
       }
 
-      // Check if this is a failure status update
-      sOpt.foreach { s =>
-        if (s.contains("failed") || s.contains("error")) {
-          failedTasks.incrementAndGet()
+      // Track task progress
+      sOpt match {
+        case None => 
+          // Task completed (success or failure), increment completed count
+          completedTasks.incrementAndGet()
+        case Some(s) if !statuses.contains(key) => 
+          // New task started, increment total
+          totalTasks.incrementAndGet()
+          if (s.contains("failed") || s.contains("error")) {
+            // Failure detected, increment failure count and completed count
+            failedTasks.incrementAndGet()
+            completedTasks.incrementAndGet()
+          }
+        case _ => // Status update for existing task
         }
-      }
     }
   }
 
