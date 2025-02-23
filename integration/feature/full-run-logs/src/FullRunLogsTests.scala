@@ -9,9 +9,6 @@ import utest.*
 // slipping in and the important parts of the logs and output files are present
 object FullRunLogsTests extends UtestIntegrationTestSuite {
 
-  private val failedTasks = new java.util.concurrent.atomic.AtomicInteger(0)
-  private val totalTasks = new java.util.concurrent.atomic.AtomicInteger(0)
-
   def normalizeOutput(output: String): String = {
     output.replace('\\', '/').replaceAll("(\r\n)|\r", "\n")
   }
