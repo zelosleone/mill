@@ -9,6 +9,9 @@ import utest.*
 // slipping in and the important parts of the logs and output files are present
 object FullRunLogsTests extends UtestIntegrationTestSuite {
 
+  private val failedTasks = new java.util.concurrent.atomic.AtomicInteger(0)
+  private val totalTasks = new java.util.concurrent.atomic.AtomicInteger(0)
+
   def normalizeOutput(output: String): String = {
     output.replace('\\', '/').replaceAll("(\r\n)|\r", "\n")
   }
@@ -87,11 +90,11 @@ object FullRunLogsTests extends UtestIntegrationTestSuite {
         .quote(
           s"""<dashes> invalid1 invalid2 invalid3 <dashes>
              |[<digits>/<digits>] invalid1
-             |[<digits>] [error] Cannot find target invalid1 [<digits>/<digits>, 1 failed]
+             |[error] Cannot find target invalid1 [<digits>/<digits>, 1 failed]
              |[<digits>/<digits>] invalid2
-             |[<digits>] [error] Cannot find target invalid2 [<digits>/<digits>, 2 failed]
+             |[error] Cannot find target invalid2 [<digits>/<digits>, 2 failed]
              |[<digits>/<digits>] invalid3
-             |[<digits>] [error] Cannot find target invalid3 [<digits>/<digits>, 3 failed]
+             |[error] Cannot find target invalid3 [<digits>/<digits>, 3 failed]
              |[<digits>/<digits>] <dashes> invalid1 invalid2 invalid3 <dashes> <digits>s [<digits>/<digits>, 3 failed]"""
             .stripMargin
             .replaceAll("(\r\n)|\r", "\n")
@@ -112,11 +115,11 @@ object FullRunLogsTests extends UtestIntegrationTestSuite {
       val expectedErrorRegex = java.util.regex.Pattern
         .quote(
           s"""[<digits>/<digits>] invalid1
-             |[<digits>] [error] Cannot find target invalid1 [<digits>/<digits>, 1 failed]
+             |[error] Cannot find target invalid1 [<digits>/<digits>, 1 failed]
              |[<digits>/<digits>] invalid2
-             |[<digits>] [error] Cannot find target invalid2 [<digits>/<digits>, 2 failed]
+             |[error] Cannot find target invalid2 [<digits>/<digits>, 2 failed]
              |[<digits>/<digits>] invalid3
-             |[<digits>] [error] Cannot find target invalid3 [<digits>/<digits>, 3 failed]"""
+             |[error] Cannot find target invalid3 [<digits>/<digits>, 3 failed]"""
             .stripMargin
             .replaceAll("(\r\n)|\r", "\n")
             .replace('\\', '/')
