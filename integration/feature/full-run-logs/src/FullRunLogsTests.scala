@@ -82,8 +82,11 @@ object FullRunLogsTests extends UtestIntegrationTestSuite {
       initial.isSuccess ==> true
 
       // Add some deprecated method usage
-      modifyFile(workspacePath / "build.mill", content => 
-        content + "\nobject foo extends Module { def foo = T { resolveDeps(Agg()) } }")
+      modifyFile(
+        workspacePath / "build.mill",
+        content =>
+          content + "\nobject foo extends Module { def foo = T { resolveDeps(Agg()) } }"
+      )
 
       // Run and verify deprecation warnings don't count as failures
       val warned = eval(("--ticker", "true", "foo.foo"))
@@ -94,8 +97,11 @@ object FullRunLogsTests extends UtestIntegrationTestSuite {
       assert(!warned.err.contains("failed]"))
 
       // Now add actual failures
-      modifyFile(workspacePath / "build.mill", content => 
-        content + "\nobject bar extends Module { def bar = T { throw new Exception(\"bar failed\") } }")
+      modifyFile(
+        workspacePath / "build.mill",
+        content =>
+          content + "\nobject bar extends Module { def bar = T { throw new Exception(\"bar failed\") } }"
+      )
 
       // Run and verify only real failures are counted
       val failed = eval(("--ticker", "true", "foo.foo", "bar.bar"))
@@ -129,8 +135,11 @@ object FullRunLogsTests extends UtestIntegrationTestSuite {
       initial.isSuccess ==> true
 
       // Add some deprecated method usage
-      modifyFile(workspacePath / "build.mill", content => 
-        content + "\nobject foo extends Module { def foo = T { resolveDeps(Agg()) } }")
+      modifyFile(
+        workspacePath / "build.mill",
+        content =>
+          content + "\nobject foo extends Module { def foo = T { resolveDeps(Agg()) } }"
+      )
 
       // Run and verify deprecation warnings don't count as failures
       val warned = eval(("--ticker", "false", "foo.foo"))
@@ -141,8 +150,11 @@ object FullRunLogsTests extends UtestIntegrationTestSuite {
       assert(!warned.err.contains("failed"))
 
       // Now add actual failures
-      modifyFile(workspacePath / "build.mill", content => 
-        content + "\nobject bar extends Module { def bar = T { throw new Exception(\"bar failed\") } }")
+      modifyFile(
+        workspacePath / "build.mill",
+        content =>
+          content + "\nobject bar extends Module { def bar = T { throw new Exception(\"bar failed\") } }"
+      )
 
       // Run and verify only real failures are counted
       val failed = eval(("--ticker", "false", "foo.foo", "bar.bar"))
