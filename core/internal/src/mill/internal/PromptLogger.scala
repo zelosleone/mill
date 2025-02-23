@@ -415,10 +415,10 @@ private[mill] object PromptLogger {
 
       // Track task progress
       sOpt match {
-        case None => 
+        case None =>
           // Task completed (success or failure), increment completed count
           completedTasks.incrementAndGet()
-        case Some(s) if !statuses.contains(key) => 
+        case Some(s) if !statuses.contains(key) =>
           // New task started, increment total
           totalTasks.incrementAndGet()
           if (s.contains("failed") || s.contains("error")) {
@@ -427,7 +427,7 @@ private[mill] object PromptLogger {
             completedTasks.incrementAndGet()
           }
         case _ => // Status update for existing task
-        }
+      }
     }
   }
 
