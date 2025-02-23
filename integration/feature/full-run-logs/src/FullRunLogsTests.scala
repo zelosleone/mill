@@ -76,14 +76,17 @@ object FullRunLogsTests extends UtestIntegrationTestSuite {
     }
     test("failureCounter.interactive") - integrationTest { tester =>
       import tester._
-      
+
       // First verify normal successful compilation
       val initial = eval(("--ticker", "true", "run", "--text", "hello"))
       initial.isSuccess ==> true
 
       // Add some code that will generate warnings but not errors
-      modifyFile(workspacePath / "src" / "Main.java", content => 
-        content.replace("public class", "@Deprecated public class"))
+      modifyFile(
+        workspacePath / "src" / "Main.java",
+        content =>
+          content.replace("public class", "@Deprecated public class")
+      )
 
       // Run and verify warnings don't count as failures
       val warned = eval(("--ticker", "true", "run", "--text", "hello"))
@@ -93,7 +96,10 @@ object FullRunLogsTests extends UtestIntegrationTestSuite {
       assert(!warned.err.contains("failed]"))
 
       // Now break the Java source file with invalid syntax
-      modifyFile(workspacePath / "src" / "Main.java", _.replace("public class", "public class class"))
+      modifyFile(
+        workspacePath / "src" / "Main.java",
+        _.replace("public class", "public class class")
+      )
 
       // Run again and verify the failure is counted
       val failed = eval(("--ticker", "true", "run", "--text", "hello"))
@@ -122,14 +128,17 @@ object FullRunLogsTests extends UtestIntegrationTestSuite {
 
     test("failureCounter.ci") - integrationTest { tester =>
       import tester._
-      
+
       // First verify normal successful compilation
       val initial = eval(("--ticker", "false", "run", "--text", "hello"))
       initial.isSuccess ==> true
 
       // Add some code that will generate warnings but not errors
-      modifyFile(workspacePath / "src" / "Main.java", content => 
-        content.replace("public class", "@Deprecated public class"))
+      modifyFile(
+        workspacePath / "src" / "Main.java",
+        content =>
+          content.replace("public class", "@Deprecated public class")
+      )
 
       // Run and verify warnings don't count as failures
       val warned = eval(("--ticker", "false", "run", "--text", "hello"))
@@ -139,7 +148,10 @@ object FullRunLogsTests extends UtestIntegrationTestSuite {
       assert(!warned.err.contains("failed]"))
 
       // Now break the Java source file with invalid syntax
-      modifyFile(workspacePath / "src" / "Main.java", _.replace("public class", "public class class"))
+      modifyFile(
+        workspacePath / "src" / "Main.java",
+        _.replace("public class", "public class class")
+      )
 
       // Run again and verify the failure is counted
       val failed = eval(("--ticker", "false", "run", "--text", "hello"))
