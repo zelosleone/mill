@@ -69,11 +69,11 @@ object FullRunLogsTests extends UtestIntegrationTestSuite {
       val fooJava = javaSource / "src" / "foo" / "Foo.java"
       val originalContent = os.read(fooJava)
       println(s"[DEBUG] failedTasksCounter - original content: '${originalContent}'")
-      
+
       // Write file without explicit permissions on Windows
       os.write.over(
-        fooJava, 
-        data = originalContent.replace("class Foo", "class Foo {"), 
+        fooJava,
+        data = originalContent.replace("class Foo", "class Foo {"),
         createFolders = true
       )
       println(s"[DEBUG] failedTasksCounter - modified content: '${os.read(fooJava)}'")
@@ -86,15 +86,19 @@ object FullRunLogsTests extends UtestIntegrationTestSuite {
       res.isSuccess ==> false
 
       // Verify the output shows failed tasks count in the progress indicator
-      val expectedPattern = "\\[\\d+/\\d+,\\s*\\d+\\s*failed\\]".r  // Matches [X/Y, N failed]
-      println(s"[DEBUG] failedTasksCounter - pattern matches: ${expectedPattern.findFirstIn(res.err).isDefined}")
-      println(s"[DEBUG] failedTasksCounter - matches found: ${expectedPattern.findAllIn(res.err).toList}")
+      val expectedPattern = "\\[\\d+/\\d+,\\s*\\d+\\s*failed\\]".r // Matches [X/Y, N failed]
+      println(
+        s"[DEBUG] failedTasksCounter - pattern matches: ${expectedPattern.findFirstIn(res.err).isDefined}"
+      )
+      println(
+        s"[DEBUG] failedTasksCounter - matches found: ${expectedPattern.findAllIn(res.err).toList}"
+      )
       expectedPattern.findFirstIn(res.err).isDefined ==> true
 
       // Restore original content for cleanup
       os.write.over(
-        fooJava, 
-        data = originalContent, 
+        fooJava,
+        data = originalContent,
         createFolders = true
       )
     }

@@ -371,7 +371,8 @@ private[mill] object PromptLogger {
         termHeight0.getOrElse(defaultTermHeight),
         now,
         startTimeMillis,
-        if (headerPrefix.isEmpty) "" else s"[$headerPrefix${if (failedTasksCount > 0) s", $failedTasksCount failed" else ""}]",
+        if (headerPrefix.isEmpty) ""
+        else s"[$headerPrefix${if (failedTasksCount > 0) s", $failedTasksCount failed" else ""}]",
         titleText,
         statuses.toSeq.map { case (k, v) => (k.mkString("-"), v) },
         interactive = interactive,
