@@ -100,8 +100,9 @@ private object ResolveCore {
    */
   object SuperTaskHandler {
     // Using private inline methods for these simple helpers for better performance
-    private inline def extractBaseTaskName(superTaskSegment: String): String = superTaskSegment.stripSuffix(".super")
-      
+    private inline def extractBaseTaskName(superTaskSegment: String): String =
+      superTaskSegment.stripSuffix(".super")
+
     /**
      * Handles SuperTask resolution during the resolve phase
      */
@@ -116,10 +117,10 @@ private object ResolveCore {
     ): Either[NotFound, (Seq[Resolved], List[Segment])] = {
       // Get potential qualifier from the next segment
       val superQualifier = tail.headOption.collect { case Segment.Label(q) => q }
-      
+
       // Resolve the base task name first
       resolveDirectChildren(
-        rootModule, 
+        rootModule,
         current.cls,
         Some(extractBaseTaskName(singleLabel)),
         current.segments,
@@ -128,25 +129,25 @@ private object ResolveCore {
         case mill.api.Result.Success(resolved) if resolved.nonEmpty =>
           // Map tasks to SuperTasks with appropriate segments
           val superTasks = resolved.collect {
-            case Resolved.NamedTask(s) => 
+            case Resolved.NamedTask(s) =>
               // Create a SuperTask with the appropriate segments and qualifier
               val lastSegment = s.last.value
               val baseSegments = s.value.init :+ Segment.Label(lastSegment + ".super")
-              val fullSegments = superQualifier.fold(Segments(baseSegments))(q => 
+              val fullSegments = superQualifier.fold(Segments(baseSegments))(q =>
                 Segments(baseSegments :+ Segment.Label(q))
               )
               Resolved.SuperTask(fullSegments, superQualifier)
             case other => other
           }
-          
+
           // If we have a qualifier, skip it in the remaining segments
           Right((superTasks, if (superQualifier.isDefined) tail.drop(1) else tail))
-          
-        case _ => 
+
+        case _ =>
           Left(notFoundResult(rootModule, querySoFar, current, Segment.Label(singleLabel), cache))
       }
     }
-    
+
     /**
      * Handles SuperTask instantiation during the instantiateModule phase
      */
@@ -167,7 +168,9 @@ private object ResolveCore {
       ).flatMap {
         case Seq((resolved: Resolved.Module, Some(f))) => f(current)
         case Seq((resolved: Resolved.NamedTask, _)) => mill.api.Result.Success(current)
-        case unknown => sys.error(s"Unable to resolve single child: rootModule: ${rootModule}, segments: ${segments.render}, current: $current, s: ${s}")
+        case unknown => sys.error(
+            s"Unable to resolve single child: rootModule: ${rootModule}, segments: ${segments.render}, current: $current, s: ${s}"
+          )
       }
     }
   }
@@ -225,7 +228,15 @@ private object ResolveCore {
           case (Segment.Label(singleLabel), m: Resolved.Module) =>
             // Check if this is a superTask segment (has .super suffix)
             if (singleLabel.endsWith(".super")) {
-              SuperTaskHandler.resolve(rootModule, singleLabel, m, tail, querySoFar, seenModules, cache) match {
+              SuperTaskHandler.resolve(
+                rootModule,
+                singleLabel,
+                m,
+                tail,
+                querySoFar,
+                seenModules,
+                cache
+              ) match {
                 case Right((superTasks, newRemainingQuery)) =>
                   if (newRemainingQuery.isEmpty) {
                     Success(superTasks)
@@ -348,7 +359,7 @@ private object ResolveCore {
       segments.value.foldLeft[mill.api.Result[Module]](mill.api.Result.Success(rootModule)) {
         case (mill.api.Result.Success(current), Segment.Label(s)) =>
           assert(s != "_", s)
-          
+
           if (s.endsWith(".super")) {
             SuperTaskHandler.instantiate(rootModule, current, s, segments, cache)
           } else {

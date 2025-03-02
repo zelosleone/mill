@@ -67,7 +67,7 @@ private[mill] object Resolve {
         case r: Resolved.SuperTask =>
           val instantiated = ResolveCore
             .instantiateModule(rootModule, r.segments.init, cache)
-            .flatMap(mod => 
+            .flatMap(mod =>
               instantiateSuperTask(r, mod, cache)
             )
           instantiated.map(Some(_))
@@ -102,7 +102,7 @@ private[mill] object Resolve {
               directChildrenOrErr.flatMap(directChildren =>
                 directChildren.head match {
                   case r: Resolved.NamedTask => instantiateNamedTask(r, value, cache).map(Some(_))
-                  case r: Resolved.SuperTask => 
+                  case r: Resolved.SuperTask =>
                     instantiateSuperTask(r, value, cache).map(Some(_))
                   case r: Resolved.Command =>
                     instantiateCommand(
@@ -159,19 +159,19 @@ private[mill] object Resolve {
   ): Result[NamedTask[?]] = {
     // Get the qualifier (if any) from the SuperTask
     val qualifier = r.qualifier
-    
+
     // The base task name is what comes before ".super" in the segment
     // For "foo.super", the base task name is "foo"
     // For a qualified super task, we need to extract from the original segment
     val baseTaskName = {
       // Try to find the segment that has ".super" in it
-      val segmentWithSuper = r.segments.value.find { 
-        case Segment.Label(name) => name.contains(".super") 
+      val segmentWithSuper = r.segments.value.find {
+        case Segment.Label(name) => name.contains(".super")
         case _ => false
       }
-      
+
       segmentWithSuper match {
-        case Some(Segment.Label(name)) => 
+        case Some(Segment.Label(name)) =>
           // Extract the part before ".super"
           name.split("\\.super").head
         case _ =>
@@ -183,17 +183,19 @@ private[mill] object Resolve {
             // Otherwise use the last segment
             r.segments.last
           }
-          
+
           relevantSegment match {
-            case Segment.Label(name) => 
+            case Segment.Label(name) =>
               if (name.contains(".super")) name.split("\\.super").head
               else name
-            case _ => 
-              throw new IllegalArgumentException(s"Cannot extract base task name from segments: ${r.segments.render}")
+            case _ =>
+              throw new IllegalArgumentException(
+                s"Cannot extract base task name from segments: ${r.segments.render}"
+              )
           }
       }
     }
-    
+
     // Find and instantiate the base task
     val definition = Reflect
       .reflect(
@@ -207,13 +209,13 @@ private[mill] object Resolve {
 
     ResolveCore.catchWrapException {
       val baseTask = definition.invoke(p).asInstanceOf[NamedTask[?]]
-      
+
       new NamedTask[Any] {
         override def ctx0 = baseTask.ctx0.withSegments(r.segments)
         override def isPrivate = baseTask.isPrivate
         override val inputs = baseTask.inputs
         override def evaluate0 = baseTask.evaluate0
-        
+
         override def toString = baseTask.toString
       }
     }
