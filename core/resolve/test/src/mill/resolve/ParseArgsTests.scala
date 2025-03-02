@@ -352,7 +352,7 @@ object ParseArgsTests extends TestSuite {
           )
         )
       }
-      
+
       test("superTasks") {
         test("basic") {
           check(
@@ -364,7 +364,7 @@ object ParseArgsTests extends TestSuite {
             )
           )
         }
-        
+
         test("withAdditionalPath") {
           check(
             Seq("core.compile.super.run"),
@@ -375,7 +375,7 @@ object ParseArgsTests extends TestSuite {
             )
           )
         }
-        
+
         test("withArgs") {
           check(
             Seq("core.compile.super", "arg1", "arg2"),
@@ -408,13 +408,19 @@ object ParseArgsTests extends TestSuite {
             )
           )
         }
-        
+
         test("withMultipleQualifiedSegments") {
           check(
             Seq("foo.bar.super.module.trait.Class"),
             Seq(
               Seq(
-                None -> Seq(Label("foo"), Label("bar.super"), Label("module"), Label("trait"), Label("Class"))
+                None -> Seq(
+                  Label("foo"),
+                  Label("bar.super"),
+                  Label("module"),
+                  Label("trait"),
+                  Label("Class")
+                )
               ) -> Seq.empty
             )
           )
@@ -443,7 +449,14 @@ object ParseArgsTests extends TestSuite {
         test("withCrossSegment") {
           val result = ParseArgs.extractSegments("bridges[2.12.4,jvm].compile.super")
           val expected = Result.Success(
-            (None, Some(Segments(Seq(Label("bridges"), Cross(Seq("2.12.4", "jvm")), Label("compile.super")))))
+            (
+              None,
+              Some(Segments(Seq(
+                Label("bridges"),
+                Cross(Seq("2.12.4", "jvm")),
+                Label("compile.super")
+              )))
+            )
           )
           assert(result == expected)
         }
@@ -451,7 +464,10 @@ object ParseArgsTests extends TestSuite {
         test("withQualifiedClass") {
           val result = ParseArgs.extractSegments("core.compile.super.qux.Baz")
           val expected = Result.Success(
-            (None, Some(Segments(Seq(Label("core"), Label("compile.super"), Label("qux"), Label("Baz")))))
+            (
+              None,
+              Some(Segments(Seq(Label("core"), Label("compile.super"), Label("qux"), Label("Baz"))))
+            )
           )
           assert(result == expected)
         }
@@ -459,7 +475,16 @@ object ParseArgsTests extends TestSuite {
         test("withComplexQualifiedClass") {
           val result = ParseArgs.extractSegments("foo.bar.super.module.trait.Class")
           val expected = Result.Success(
-            (None, Some(Segments(Seq(Label("foo"), Label("bar.super"), Label("module"), Label("trait"), Label("Class")))))
+            (
+              None,
+              Some(Segments(Seq(
+                Label("foo"),
+                Label("bar.super"),
+                Label("module"),
+                Label("trait"),
+                Label("Class")
+              )))
+            )
           )
           assert(result == expected)
         }
