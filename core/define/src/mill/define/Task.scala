@@ -215,7 +215,7 @@ object Task extends TaskBase {
   private[define] class Sequence[+T](inputs0: Seq[Task[T]]) extends Task[Seq[T]] {
     val inputs: Seq[Task[?]] = inputs0
     def evaluate(ctx: mill.api.Ctx): Result[Seq[T]] = {
-      for (i <- 0 until ctx.args.length)
+      for (i <- ctx.args.indices)
         yield ctx.args(i).asInstanceOf[T]
     }
   }
@@ -246,7 +246,8 @@ trait NamedTask[+T] extends Task[T] {
         "NamedTask only support a ctx with a Label segment, but found a Cross."
       )
   }
-  override def toString = ctx.segments.render
+
+  override def toString: String = ctx.segments.render
 
   def evaluate(ctx: mill.api.Ctx): Result[T] = evaluate0(ctx.args, ctx)
 
@@ -421,7 +422,7 @@ class InputImpl[T](
     val writer: upickle.default.Writer[?],
     val isPrivate: Option[Boolean]
 ) extends Target[T] {
-  val inputs = Nil
+  val inputs: Seq[Task[?]] = Nil
   override def sideHash: Int = util.Random.nextInt()
   // FIXME: deprecated return type: Change to Option
   override def writerOpt: Some[W[?]] = Some(writer)
@@ -451,7 +452,7 @@ class SourceImpl(
 
 class AnonImpl[T](val inputs: Seq[Task[_]], evaluate0: (Seq[Any], mill.api.Ctx) => Result[T])
     extends Task[T] {
-  def evaluate(ctx: mill.api.Ctx) = evaluate0(ctx.args, ctx)
+  def evaluate(ctx: mill.api.Ctx): Result[T] = evaluate0(ctx.args, ctx)
 }
 
 private object TaskMacros {
