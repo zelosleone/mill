@@ -252,7 +252,7 @@ trait NamedTask[+T] extends Task[T] {
 
   def evaluate0: (Seq[Any], mill.api.Ctx) => Result[T]
 
-  val ctx: Ctx = ctx0
+  val ctx: mill.define.Ctx = ctx0
 
   def readWriterOpt: Option[upickle.default.ReadWriter[?]] = None
 
