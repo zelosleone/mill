@@ -16,6 +16,15 @@ public class EnvVars {
    */
   public static final String MILL_TEST_RESOURCE_DIR = "MILL_TEST_RESOURCE_DIR";
 
+    /**
+     * Available in test modules for users to get a free port for testing.
+     * If multiple free ports are needed, they are provided as a comma-separated list.
+     * <p>
+     * NOTE: only exists when running tests using Mill, and is not available when executing applications packaged
+     * for deployment via .assembly
+     */
+    public static final String MILL_TEST_FREE_PORT = "MILL_TEST_FREE_PORT";
+
   /**
    * How long the Mill background server should run before timing out from inactivity
    */

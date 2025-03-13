@@ -1,11 +1,9 @@
 package mill.exec
 
-import mill.api.ExecResult.{OuterStack, Success}
-
 import mill.api.*
+import mill.api.ExecResult.{OuterStack, Success}
 import mill.define.*
-import mill.internal.MultiLogger
-import mill.internal.FileLogger
+import mill.internal.{FileLogger, MultiLogger}
 
 import java.lang.reflect.Method
 import scala.collection.mutable
@@ -228,11 +226,22 @@ private trait GroupExecution {
       val res = {
         if (targetInputValues.length != task.inputs.length) ExecResult.Skipped
         else {
+          // Assign free ports if the task needs them
+          val taskEnv = if (task.freePorts > 0) {
+            // Start from port 9000 and assign consecutive ports
+            val baseFreePort = 9000
+            val freePorts = (0 until task.freePorts).map(i => (baseFreePort + i).toString)
+            val freePortsStr = freePorts.mkString(",")
+            env + (mill.constants.EnvVars.MILL_TEST_FREE_PORT -> freePortsStr)
+          } else {
+            env
+          }
+
           val args = new mill.api.Ctx.Impl(
             args = targetInputValues.map(_.value).toIndexedSeq,
             dest0 = () => makeDest(),
             log = multiLogger,
-            env = env,
+            env = taskEnv,
             reporter = reporter,
             testReporter = testReporter,
             workspace = workspace,

@@ -15,6 +15,11 @@ object `package` extends RootModule with ScalaModule {
       ivy"com.lihaoyi::utest::0.8.5",
       ivy"com.lihaoyi::requests::0.6.9"
     )
+
+    // Specify that this test needs one free port
+    def test = T.command {
+      super.test(freePorts = 1)
+    }
   }
 }
 

@@ -27,6 +27,11 @@ object `package` extends RootModule with AppScalaModule {
       ivy"com.lihaoyi::utest::0.8.5",
       ivy"com.lihaoyi::requests::0.6.9"
     )
+
+    // Specify that this test needs one free port
+    def test = T.command {
+      super.test(freePorts = 1)
+    }
   }
 
   object shared extends Module {

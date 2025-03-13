@@ -1,10 +1,9 @@
 package mill.define
 
-import mill.api.{CompileProblemReporter, Logger, PathRef, Result, TestReporter}
+import mill.api.*
 import mill.define.internal.Applicative.Applyable
-import mill.define.internal.Cacher
+import mill.define.internal.{Applicative, Cacher, NamedParameterOnlyDummy}
 import upickle.default.{ReadWriter as RW, Writer as W}
-import mill.define.internal.{Applicative, NamedParameterOnlyDummy}
 
 import scala.language.implicitConversions
 import scala.quoted.*
@@ -38,6 +37,11 @@ abstract class Task[+T] extends Task.Ops[T] with Applyable[Task, T] {
    * Whether or not this [[Task]] deletes the `Task.dest` folder between runs
    */
   def persistent: Boolean = false
+
+  /**
+   * Number of free ports this [[Task]] needs for testing
+   */
+  def freePorts: Int = 0
 
   def asTarget: Option[Target[T]] = None
   def asCommand: Option[Command[T]] = None
@@ -172,7 +176,7 @@ object Task extends TaskBase {
       inline rw: RW[T],
       inline ctx: mill.define.Ctx
   ): Target[T] =
-    ${ TaskMacros.targetResultImpl[T]('t)('rw, 'ctx, '{ false }) }
+    ${ TaskMacros.targetResultImpl[T]('t)('rw, 'ctx, '{ false }, '{ 0 }) }
 
   /**
    * Persistent tasks are defined using
@@ -189,13 +193,15 @@ object Task extends TaskBase {
    */
   def apply(
       t: NamedParameterOnlyDummy = new NamedParameterOnlyDummy,
-      persistent: Boolean = false
-  ): ApplyFactory = new ApplyFactory(persistent)
-  class ApplyFactory private[mill] (val persistent: Boolean) {
+      persistent: Boolean = false,
+      freePorts: Int = 0
+           ): ApplyFactory = new ApplyFactory(persistent, freePorts)
+
+  class ApplyFactory private[mill](val persistent: Boolean, val freePorts: Int) {
     inline def apply[T](inline t: Result[T])(implicit
         inline rw: RW[T],
         inline ctx: mill.define.Ctx
-    ): Target[T] = ${ TaskMacros.targetResultImpl[T]('t)('rw, 'ctx, '{ persistent }) }
+    ): Target[T] = ${ TaskMacros.targetResultImpl[T]('t)('rw, 'ctx, '{ persistent }, '{ freePorts }) }
   }
 
   abstract class Ops[+T] { this: Task[T] =>
@@ -271,13 +277,13 @@ object Target extends TaskBase {
       inline rw: RW[T],
       inline ctx: mill.define.Ctx
   ): Target[T] =
-    ${ TaskMacros.targetResultImpl[T]('{ Result.Success(t) })('rw, 'ctx, '{ false }) }
+    ${ TaskMacros.targetResultImpl[T]('{ Result.Success(t) })('rw, 'ctx, '{ false }, '{ 0 }) }
 
   implicit inline def apply[T](inline t: Result[T])(implicit
       inline rw: RW[T],
       inline ctx: mill.define.Ctx
   ): Target[T] =
-    ${ TaskMacros.targetResultImpl[T]('t)('rw, 'ctx, '{ false }) }
+    ${ TaskMacros.targetResultImpl[T]('t)('rw, 'ctx, '{ false }, '{ 0 }) }
 
 }
 
@@ -377,7 +383,8 @@ class TargetImpl[+T](
     val ctx0: mill.define.Ctx,
     val readWriter: RW[?],
     val isPrivate: Option[Boolean],
-    override val persistent: Boolean
+    override val persistent: Boolean,
+    override val freePorts: Int = 0
 ) extends Target[T] {
   override def asTarget: Option[Target[T]] = Some(this)
   // FIXME: deprecated return type: Change to Option
@@ -463,7 +470,7 @@ private object TaskMacros {
   private def taskIsPrivate()(using Quotes): Expr[Option[Boolean]] =
     Cacher.withMacroOwner {
       owner =>
-        import quotes.reflect.*
+
         if owner.flags.is(Flags.Private) then Expr(Some(true))
         else Expr(Some(false))
     }
@@ -477,10 +484,11 @@ private object TaskMacros {
   )(t: Expr[Result[T]])(
       rw: Expr[RW[T]],
       ctx: Expr[mill.define.Ctx],
-      persistent: Expr[Boolean]
+      persistent: Expr[Boolean],
+      freePorts: Expr[Int] = '{ 0 }
   ): Expr[Target[T]] = {
     val expr = appImpl[Target, T](
-      (in, ev) => '{ new TargetImpl[T]($in, $ev, $ctx, $rw, ${ taskIsPrivate() }, $persistent) },
+      (in, ev) => '{ new TargetImpl[T]($in, $ev, $ctx, $rw, ${ taskIsPrivate() }, $persistent, $freePorts) },
       t
     )
 
