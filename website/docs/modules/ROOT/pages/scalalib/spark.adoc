@@ -165,5 +165,3 @@ These examples illustrate several key capabilities of Mill when used with Spark:
 3. *Test Integration* - Ensure your test environment mirrors production closely.
 4. *Scala Version Compatibility* - Use the `::` notation to maintain binary compatibility.
 5. *Minimal Necessary Dependencies* - Only include what you actually need for each use case.
-
-For more advanced Spark configuration with Mill, please refer to the xref:ScalaModule.adoc[] documentation.
