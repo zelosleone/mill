@@ -148,14 +148,14 @@ private object ResolveCore {
             } else {
               ""
             }
-            
+
             val newLastSegment = lastSegment match {
               case Segment.Label(name) => Segment.Label(s"$name.super$superSuffix")
               case other => other
             }
             val newSegments = Segments(nt.segments.value.dropRight(1) :+ newLastSegment)
             Success(Seq(Resolved.NamedTask(newSegments)))
-          
+
           case (Segment.Label("super"), nt: Resolved.NamedTask) =>
             val lastSegment = nt.segments.value.last
             val superSuffix = if (tail.nonEmpty) {
@@ -163,7 +163,7 @@ private object ResolveCore {
             } else {
               ""
             }
-            
+
             val newLastSegment = lastSegment match {
               case Segment.Label(name) => Segment.Label(s"$name.super$superSuffix")
               case other => other

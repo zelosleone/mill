@@ -13,7 +13,7 @@ object ExecutionPaths {
       outPath: os.Path,
       segments: Segments
   ): ExecutionPaths = {
-    val adjustedSegments = 
+    val adjustedSegments =
       if (segments.value.nonEmpty && segments.value.last == Segment.Label("super")) {
         Segments(segments.value.dropRight(1))
       } else if (segments.value.nonEmpty) {
@@ -28,7 +28,7 @@ object ExecutionPaths {
       } else {
         segments
       }
-    
+
     val segmentStrings = adjustedSegments.parts
     val targetPath = outPath / segmentStrings.map(sanitizePathSegment)
     ExecutionPaths(

@@ -133,7 +133,7 @@ private[mill] object Resolve {
     } else {
       taskName
     }
-        
+
     val definition = Reflect
       .reflect(
         p.getClass,
@@ -142,14 +142,14 @@ private[mill] object Resolve {
         true,
         getMethods = cache.getMethods
       )
-      
+
     if (definition.isEmpty) {
       Result.Failure(s"Cannot find task '$baseTaskName' in module '${p.getClass.getName}'")
     } else {
       val task = ResolveCore.catchWrapException(
         definition.head.invoke(p).asInstanceOf[NamedTask[?]]
       )
-      
+
       // Return the task, whether it's a super task or not
       // The super suffix is preserved in the segments, which the evaluator will use
       task
