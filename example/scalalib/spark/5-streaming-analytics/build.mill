@@ -1,10 +1,17 @@
 package build
+
+/**
+ * Mill build configuration for a real-time stock analytics application.
+ */
 import mill._, scalalib._
 
 object foo extends ScalaModule {
   def scalaVersion = "2.12.15"
   
-  // Core Spark dependencies
+  /**
+   * - spark-streaming: Core library for continuous data processing
+   * - play-json: Efficient parsing of financial data feeds
+   */
   def ivyDeps = Seq(
     ivy"org.apache.spark::spark-core:3.5.4",
     ivy"org.apache.spark::spark-sql:3.5.4",
@@ -14,7 +21,12 @@ object foo extends ScalaModule {
     ivy"com.typesafe.play::play-json:2.9.4"
   )
 
-  // Configure for better Spark performance
+  /**
+   * - --add-opens: Required for Spark to work with Java 9+ modules
+   * - -XX:+UseG1GC: G1 garbage collector optimizes for low latency, critical for streaming
+   * - -Xmx2g: Allocates sufficient memory for data processing without excess overhead
+   * - spark.ui.enabled: Provides monitoring dashboard for streaming job performance
+   */
   def forkArgs = Seq(
     "--add-opens", "java.base/sun.nio.ch=ALL-UNNAMED",
     "-XX:+UseG1GC",

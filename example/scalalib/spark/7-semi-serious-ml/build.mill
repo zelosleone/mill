@@ -1,4 +1,8 @@
 package build
+
+/**
+ * Mill build configuration for a text classification ML model.
+ */
 import mill._, scalalib._
 
 object foo extends ScalaModule {
@@ -9,6 +13,14 @@ object foo extends ScalaModule {
     ivy"org.apache.spark::spark-mllib:3.5.4"
   )
 
+  /**
+   * JVM Options for:
+   * - ML libraries require broader access to JVM internals
+   * - Text processing uses specialized Java utilities
+   * - Advanced ML algorithms leverage concurrent operations
+   * - Reflection is used extensively in serialization/deserialization
+   * - These settings prevent warnings or errors when using modern Java
+   */
   def forkArgs = Seq(
     "--add-opens", "java.base/sun.nio.ch=ALL-UNNAMED",
     "--add-opens", "java.base/java.nio=ALL-UNNAMED",

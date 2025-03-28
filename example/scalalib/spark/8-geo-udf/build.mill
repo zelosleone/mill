@@ -1,4 +1,14 @@
 package build
+
+/**
+ * Mill build configuration for geospatial processing with Spark UDFs.
+ * 
+ * Why focus on geospatial UDFs, specially with Mill?
+ * - Geospatial operations are computationally expensive but highly parallelizable, and Mill is fast, very fast.
+ * - Custom UDFs allow integrating domain-specific algorithms with Spark's distributed computing
+ * - Demonstrates extension of Spark's capabilities beyond built-in functions with Mill
+ * - Represents a common real-world use case in logistics, telecom, and urban planning
+ */
 import mill._, scalalib._
 
 object foo extends ScalaModule {
@@ -12,6 +22,13 @@ object foo extends ScalaModule {
     ivy"org.scalanlp::breeze:2.1.0"
   )
 
+  /**
+   * JVM Options for:
+   * - Geospatial libraries often use Java reflection extensively
+   * - Numerical computation packages need access to low-level operations
+   * - Mathematical optimization requires specialized memory management
+   * - These settings prevent security exceptions on Java 9+ modules
+   */
   def forkArgs = Seq(
     "--add-opens", "java.base/sun.nio.ch=ALL-UNNAMED",
     "--add-opens", "java.base/java.nio=ALL-UNNAMED",

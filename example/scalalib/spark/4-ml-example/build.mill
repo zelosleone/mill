@@ -1,4 +1,8 @@
 package build
+
+/**
+ * Mill build configuration for a Spark ML example.
+ */
 import mill._, scalalib._
 
 object foo extends ScalaModule {
@@ -9,6 +13,11 @@ object foo extends ScalaModule {
     ivy"org.apache.spark::spark-mllib:3.5.4"
   )
 
+  /**
+   * These flags are required to avoid runtime errors with Java 9+ modules
+   * - Allows Spark classes to access internal Java classes
+   * - Resolves potential runtime errors on newer Java versions
+   */
   def forkArgs = Seq("--add-opens", "java.base/sun.nio.ch=ALL-UNNAMED")
 
   object test extends ScalaTests {
