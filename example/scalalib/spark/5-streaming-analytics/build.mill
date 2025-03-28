@@ -1,0 +1,51 @@
+package build
+import mill._, scalalib._
+
+object foo extends ScalaModule {
+  def scalaVersion = "2.12.15"
+  
+  // Core Spark dependencies
+  def ivyDeps = Seq(
+    ivy"org.apache.spark::spark-core:3.5.4",
+    ivy"org.apache.spark::spark-sql:3.5.4",
+    ivy"org.apache.spark::spark-streaming:3.5.4",
+    
+    // Additional libraries for data processing
+    ivy"com.typesafe.play::play-json:2.9.4"
+  )
+
+  // Configure for better Spark performance
+  def forkArgs = Seq(
+    "--add-opens", "java.base/sun.nio.ch=ALL-UNNAMED",
+    "-XX:+UseG1GC",
+    "-Xmx2g",
+    "-Dspark.ui.enabled=true"
+  )
+  
+  object test extends ScalaTests {
+    def ivyDeps = Seq(ivy"com.lihaoyi::utest:0.8.5")
+    def testFramework = "utest.runner.Framework"
+    def forkArgs = foo.forkArgs
+  }
+}
+// This example demonstrates a small real-time stock analytics application using Spark and Mill
+
+/** Usage
+
+> ./mill foo.run
+...
++------+-------------+
+|symbol|priceMovement|
++------+-------------+
+|AAPL  |? 2.3%       |
+|GOOG  |? 1.8%       |
+|MSFT  |? 0.5%       |
++------+-------------+
+...
+
+> ./mill foo.test
+...
++ foo.FooTests.calculatePriceMovements should calculate correct price movements...
++ foo.FooTests.generateMockStockData should create valid DataFrame...
+...
+*/
