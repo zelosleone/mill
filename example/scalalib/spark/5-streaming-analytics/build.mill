@@ -7,7 +7,7 @@ import mill._, scalalib._
 
 object foo extends ScalaModule {
   def scalaVersion = "2.12.15"
-  
+
   /**
    * - spark-streaming: Core library for continuous data processing
    * - play-json: Efficient parsing of financial data feeds
@@ -16,7 +16,7 @@ object foo extends ScalaModule {
     ivy"org.apache.spark::spark-core:3.5.4",
     ivy"org.apache.spark::spark-sql:3.5.4",
     ivy"org.apache.spark::spark-streaming:3.5.4",
-    
+
     // Additional libraries for data processing
     ivy"com.typesafe.play::play-json:2.9.4"
   )
@@ -28,12 +28,13 @@ object foo extends ScalaModule {
    * - spark.ui.enabled: Provides monitoring dashboard for streaming job performance
    */
   def forkArgs = Seq(
-    "--add-opens", "java.base/sun.nio.ch=ALL-UNNAMED",
+    "--add-opens",
+    "java.base/sun.nio.ch=ALL-UNNAMED",
     "-XX:+UseG1GC",
     "-Xmx2g",
     "-Dspark.ui.enabled=true"
   )
-  
+
   object test extends ScalaTests {
     def ivyDeps = Seq(ivy"com.lihaoyi::utest:0.8.5")
     def testFramework = "utest.runner.Framework"

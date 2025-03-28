@@ -24,35 +24,35 @@ object Foo {
 
     // Create a DataFrame with text and label columns
     val trainingDF = spark.createDataFrame(data).toDF("text", "label")
-    
+
     // Convert string labels to indices
     val labelIndexer = new StringIndexer()
       .setInputCol("label")
       .setOutputCol("indexedLabel")
       .fit(trainingDF)
-    
+
     // Configure ML pipeline
     val tokenizer = new Tokenizer()
       .setInputCol("text")
       .setOutputCol("words")
-    
+
     val hashingTF = new HashingTF()
       .setInputCol("words")
       .setOutputCol("features")
       .setNumFeatures(1000)
-    
+
     val lr = new LogisticRegression()
       .setMaxIter(10)
       .setRegParam(0.01)
       .setLabelCol("indexedLabel")
       .setFeaturesCol("features")
-    
+
     // Create and train pipeline
     val pipeline = new Pipeline()
       .setStages(Array(labelIndexer, tokenizer, hashingTF, lr))
-    
+
     val model = pipeline.fit(trainingDF)
-    
+
     // Create test data
     val testData = Seq(
       ("Machine learning models are becoming more accurate", "tech_ai"),
@@ -61,28 +61,28 @@ object Foo {
       ("The stock market closed higher yesterday", "business"),
       ("Deep learning is a subset of machine learning", "tech_ai")
     )
-    
+
     val testDF = spark.createDataFrame(testData).toDF("text", "label")
-    
+
     // Make predictions
     val predictions = model.transform(testDF)
       .select("text", "label", "probability", "prediction")
-    
+
     // Convert prediction indices back to original labels
     val labelToIndex = labelIndexer.labelsArray(0).zipWithIndex.toMap
     val indexToLabel = labelToIndex.map(_.swap)
-    
+
     // Print prediction mappings for educational purposes
     println("Label Mappings:")
-    labelToIndex.foreach { case (label, index) => 
+    labelToIndex.foreach { case (label, index) =>
       println(s"$label -> $index")
     }
-    
+
     // Display some explanatory information
     println("\nFeature Importance:")
     val lrModel = model.stages.last.asInstanceOf[LogisticRegressionModel]
     println(s"Model coefficients: ${lrModel.coefficientMatrix}")
-    
+
     predictions
   }
 
@@ -93,10 +93,10 @@ object Foo {
       .getOrCreate()
 
     val predictions = buildTextClassifier(spark)
-    
+
     // Show results
     predictions.show()
 
     spark.stop()
   }
-} 
+}

@@ -21,7 +21,7 @@ object FooTests extends TestSuite {
       println("+ FooTests.distanceCalculation")
       // Test distance calculation between New York and London
       val testData = Seq(
-        (40.7128, -74.0060, 51.5074, -0.1278)  // NY to London
+        (40.7128, -74.0060, 51.5074, -0.1278) // NY to London
       ).toDF("lat1", "lon1", "lat2", "lon2")
 
       // Register UDF
@@ -41,10 +41,10 @@ object FooTests extends TestSuite {
       println("+ FooTests.polygonContainment")
       // Test polygon (rectangle around New York City)
       val polygonStr = "(41.0,-75.0);(41.0,-73.0);(40.0,-73.0);(40.0,-75.0);(41.0,-75.0)"
-      
+
       val testData = Seq(
-        (40.7580, -73.9855, "Times Square"),  // Inside NYC
-        (51.5074, -0.1278, "London")          // Outside NYC
+        (40.7580, -73.9855, "Times Square"), // Inside NYC
+        (51.5074, -0.1278, "London") // Outside NYC
       ).toDF("lat", "lon", "location")
 
       // Register UDF
@@ -64,10 +64,10 @@ object FooTests extends TestSuite {
       println("+ FooTests.coordinateConversion")
       // Test UTM zone calculation
       val testData = Seq(
-        (40.7128, -74.0060, "Zone 18N"),  // New York
-        (51.5074, -0.1278, "Zone 30N"),   // London
-        (35.6762, 139.6503, "Zone 54N"),  // Tokyo
-        (-33.8688, 151.2093, "Zone 56S")  // Sydney
+        (40.7128, -74.0060, "Zone 18N"), // New York
+        (51.5074, -0.1278, "Zone 30N"), // London
+        (35.6762, 139.6503, "Zone 54N"), // Tokyo
+        (-33.8688, 151.2093, "Zone 56S") // Sydney
       ).toDF("lat", "lon", "expected_zone")
 
       // Register UDF
@@ -86,7 +86,7 @@ object FooTests extends TestSuite {
       println("+ FooTests.end-to-end workflow")
       // Test the entire workflow with a small dataset
       val testData = Seq(
-        (40.7580, -73.9855, "Times Square")  // Should be inside service area
+        (40.7580, -73.9855, "Times Square") // Should be inside service area
       ).toDF("latitude", "longitude", "location")
 
       val refLat = 40.7580
@@ -108,9 +108,9 @@ object FooTests extends TestSuite {
         .head
 
       // Verify results
-      assert(result.getAs[Double]("distance_km") < 1.0)  // Should be very close to reference point
-      assert(result.getAs[Boolean]("in_service_area"))   // Should be inside service area
-      assert(result.getAs[String]("utm_coords") == "Zone 18N")  // Should be in UTM zone 18N
+      assert(result.getAs[Double]("distance_km") < 1.0) // Should be very close to reference point
+      assert(result.getAs[Boolean]("in_service_area")) // Should be inside service area
+      assert(result.getAs[String]("utm_coords") == "Zone 18N") // Should be in UTM zone 18N
     }
   }
 }

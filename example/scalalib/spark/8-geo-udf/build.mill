@@ -30,12 +30,18 @@ object foo extends ScalaModule {
    * - These settings prevent security exceptions on Java 9+ modules
    */
   def forkArgs = Seq(
-    "--add-opens", "java.base/sun.nio.ch=ALL-UNNAMED",
-    "--add-opens", "java.base/java.nio=ALL-UNNAMED",
-    "--add-opens", "java.base/java.util.concurrent=ALL-UNNAMED",
-    "--add-opens", "java.base/java.lang=ALL-UNNAMED",
-    "--add-opens", "java.base/java.lang.invoke=ALL-UNNAMED",
-    "--add-opens", "java.base/java.util=ALL-UNNAMED"
+    "--add-opens",
+    "java.base/sun.nio.ch=ALL-UNNAMED",
+    "--add-opens",
+    "java.base/java.nio=ALL-UNNAMED",
+    "--add-opens",
+    "java.base/java.util.concurrent=ALL-UNNAMED",
+    "--add-opens",
+    "java.base/java.lang=ALL-UNNAMED",
+    "--add-opens",
+    "java.base/java.lang.invoke=ALL-UNNAMED",
+    "--add-opens",
+    "java.base/java.util=ALL-UNNAMED"
   )
 
   object test extends ScalaTests {
@@ -43,12 +49,18 @@ object foo extends ScalaModule {
     def testFramework = "utest.runner.Framework"
 
     def forkArgs = Seq(
-      "--add-opens", "java.base/sun.nio.ch=ALL-UNNAMED",
-      "--add-opens", "java.base/java.nio=ALL-UNNAMED",
-      "--add-opens", "java.base/java.util.concurrent=ALL-UNNAMED",
-      "--add-opens", "java.base/java.lang=ALL-UNNAMED",
-      "--add-opens", "java.base/java.lang.invoke=ALL-UNNAMED",
-      "--add-opens", "java.base/java.util=ALL-UNNAMED"
+      "--add-opens",
+      "java.base/sun.nio.ch=ALL-UNNAMED",
+      "--add-opens",
+      "java.base/java.nio=ALL-UNNAMED",
+      "--add-opens",
+      "java.base/java.util.concurrent=ALL-UNNAMED",
+      "--add-opens",
+      "java.base/java.lang=ALL-UNNAMED",
+      "--add-opens",
+      "java.base/java.lang.invoke=ALL-UNNAMED",
+      "--add-opens",
+      "java.base/java.util=ALL-UNNAMED"
     )
   }
 }
@@ -81,4 +93,3 @@ object foo extends ScalaModule {
 + FooTests.coordinateConversion
 ...
 */
-
